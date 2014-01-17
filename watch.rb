@@ -1,9 +1,12 @@
 require 'net/http'
 require 'net/https'
 require 'nokogiri'
+require 'twilio-ruby'
 
-application_token = ""
-user_token = ""
+
+#TODO: Put your account id and auth token from Twilio here.
+@account_sid = ''
+@auth_token = ''
 
 def get_availability_ssl(crn, term)
 
@@ -26,19 +29,13 @@ def get_availability_ssl(crn, term)
 end
 
 def push_message(class_name, open_slots)
+	@client = Twilio::REST::Client.new @account_sid, @auth_token
 
-  url = URI.parse("https://api.pushover.net/1/messages")
-  req = Net::HTTP::Post.new(url.path)
-  req.set_form_data({
-    :token => application_token,
-    :user => user_token,
-    :message => "There are #{open_slots} open seats in #{class_name}! Go register!",
-  })
-  res = Net::HTTP.new(url.host, url.port)
-  res.use_ssl = true
-  res.verify_mode = OpenSSL::SSL::VERIFY_PEER
-  res.start {|http| http.request(req) }
-
+	@client.account.messages.create({
+		:from => '', #TODO: Be sure to change these values to the ones corresponding with your account!!
+		:to => '',
+		:body => "There are #{open_slots} open seats in #{class_name}! Go register!",
+	})
 end
 
 course_number = ARGV[0] ? ARGV[0] : "53454"
